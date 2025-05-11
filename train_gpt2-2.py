@@ -69,18 +69,6 @@ class Block(nn.Module):
         x = x + self.mlp(self.ln_2(x))
         return x
 
-
-
-'''
-在 Python 3.7 引入的标准库模块 dataclasses 中，@dataclass 是一个类装饰器，它会根据你在类中声明的字段（带类型注解的类变量），自动帮你生成：
-
-__init__ 方法：根据字段顺序自动生成构造函数，帮你把字段赋值到实例里。
-
-__repr__ 方法：生成一个易读的字符串表示，方便调试。
-
-__eq__ 方法：基于字段值自动实现“==”比较。
-'''
-
 @dataclass
 class GPTConfig:
     block_size: int = 1024 # max sequence length
@@ -107,7 +95,6 @@ class GPT(nn.Module):
         self.transformer.wte.weight = self.lm_head.weight
 
         # init params
-        """apply 给了你一个“一键式”接口，帮你将同一个初始化函数，统一地、递归地应用到模型里每一个子层。"""
         self.apply(self._init_weights)
 
     def _init_weights(self, module):
@@ -296,9 +283,6 @@ for step in range(max_steps):
     optimizer.zero_grad()
     with torch.autocast(device_type=device, dtype=torch.bfloat16):
         logits, loss = model(x, y)
-        # import code; code.interact(local=locals()) 
-        # this code is very important for me to debug!
-        # input is torch.float16, but weight is still torch.float32
     loss.backward()
     norm = torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
     # determine and set the learning rate for this iteration
@@ -319,9 +303,7 @@ import sys; sys.exit(0)
 model.eval()
 num_return_sequences = 5
 max_length = 30
-tokens = enc.encode("Hello, I'm a language model,") 
-
-# 如果"之前加上空格，输出就会变的比较抽风
+tokens = enc.encode("Hello, I'm a language model,")
 tokens = torch.tensor(tokens, dtype=torch.long) # (8,)
 tokens = tokens.unsqueeze(0).repeat(num_return_sequences, 1) # (5, 8)
 x = tokens.to(device)
