@@ -244,7 +244,7 @@ torch.set_float32_matmul_precision('high') # TF32
 
 
 # get logits
-model = GPT(GPTConfig())
+model = GPT(GPTConfig(vocab_size=50304))
 model.to(device)
 model = torch.compile(model)
 # compile the model for a little time, and make the training faster a lot
