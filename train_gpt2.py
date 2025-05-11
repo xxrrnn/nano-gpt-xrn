@@ -104,6 +104,18 @@ class GPT(nn.Module):
 
         # weight sharing scheme
         self.transformer.wte.weight = self.lm_head.weight
+
+        # init params
+        """apply 给了你一个“一键式”接口，帮你将同一个初始化函数，统一地、递归地应用到模型里每一个子层。"""
+        self.apply(self._init_weights)
+    
+    def _init_weights(self, module):
+        if isinstance(module, nn.Linear):
+            torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
+            if module.bias is not None:
+                torch.nn.init.zeros_(module.bias)
+        elif isinstance(module, nn.Embedding):
+            torch.nn.init.normal_(module.weight, mean=0.0, std=0.2)
     
     def forward(self, idx, targets=None):
         # idx is of shape (B, T)
